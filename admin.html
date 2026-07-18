@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYPER! X - ADMIN PANEL</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #0b0b0c; background-image: radial-gradient(at 50% 50%, rgba(224, 32, 32, 0.12) 0px, transparent 60%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: rgba(20, 20, 22, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); width: 100%; max-width: 440px; border-radius: 24px; padding: 32px 24px; border: 1px solid rgba(224, 32, 32, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(224, 32, 32, 0.05); display: flex; flex-direction: column; gap: 20px; position: relative; }
+        h1 { font-size: 26px; font-weight: 800; color: #ffffff; text-align: center; letter-spacing: -0.5px; }
+        h1 span { color: #e62121; text-shadow: 0 0 15px rgba(230, 33, 33, 0.4); }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 12px; font-weight: 600; color: #a1a1a6; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 4px; }
+        .input-field { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); padding: 14px; border-radius: 12px; color: white; font-size: 15px; outline: none; width: 100%; transition: all 0.3s; }
+        .input-field:focus { border-color: #e62121; box-shadow: 0 0 15px rgba(230, 33, 33, 0.2); background: rgba(0, 0, 0, 0.6); }
+        .btn-red { background: linear-gradient(135deg, #e62121, #b81414); color: white; width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(230, 33, 33, 0.25); transition: all 0.2s; }
+        .btn-red:hover { background: linear-gradient(135deg, #ff2e2e, #d91818); box-shadow: 0 6px 20px rgba(230, 33, 33, 0.4); }
+        .btn-red:active { transform: scale(0.97); }
+        .back-link { text-align: center; font-size: 13px; color: #86868b; text-decoration: none; transition: color 0.2s; margin-top: 5px; }
+        .back-link:hover { color: #ffffff; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    </style>
+</head>
+<body>
+
+<div class="card" id="adminCard">
+    <h1>⚙️ <span>ADMIN</span> PANEL</h1>
+    <p style="color: #86868b; font-size: 13px; text-align: center; margin-top: -15px;">ระบบจัดการประกาศและเซิร์ฟเวอร์หลัก</p>
+
+    <div class="input-group">
+        <label>Master Password</label>
+        <input type="password" id="adminPassword" class="input-field" placeholder="••••••••">
+    </div>
+
+    <div class="input-group">
+        <label>System Announcement</label>
+        <input type="text" id="newAnnouncement" class="input-field" placeholder="พิมพ์ข้อความประกาศใหม่ที่นี่...">
+    </div>
+
+    <button class="btn-red" onclick="updateSystem()">PUBLISH UPDATE</button>
+
+    <a href="index.html" class="back-link">← กลับไปหน้าล็อกอินผู้ใช้</a>
+</div>
+
+<script>
+    const BACKEND_URL = window.location.origin;
+
+    async function updateSystem() {
+        const password = document.getElementById('adminPassword').value;
+        const announcement = document.getElementById('newAnnouncement').value;
+        const card = document.getElementById('adminCard');
+
+        if(!password || !announcement) {
+            alert('กรุณากรอกข้อมูลให้ครบถ้วนก่อนส่งข้อมูล');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/admin/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    password: password,
+                    announcement: announcement
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert('⚡ อัปเดตประกาศระบบให้ผู้ใช้ทุกคนเรียบร้อยแล้ว!');
+                document.getElementById('newAnnouncement').value = '';
+            } else {
+                card.style.animation = "shake 0.2s 2";
+                setTimeout(() => card.style.animation = "none", 400);
+                alert('ปฏิเสธการเข้าถึง: ' + result.message);
+            }
+        } catch (e) {
+            alert('ไม่สามารถเชื่อมต่อระบบหลังบ้านได้');
+        }
+    }
+</script>
+</body>
+</html>
